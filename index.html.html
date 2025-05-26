@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vyanet Drone Intelligence Bot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    .chat-container {
+      width: 400px;
+      height: 600px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: white;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-box {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      border-bottom: 1px solid #ccc;
+    }
+    .chat-message {
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 5px;
+    }
+    .user-message {
+      background-color: #007bff;
+      color: white;
+      margin-left: 20%;
+      margin-right: 5px;
+      text-align: right;
+    }
+    .bot-message {
+      background-color: #e9ecef;
+      margin-right: 20%;
+      margin-left: 5px;
+    }
+    .input-container {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid #ccc;
+    }
+    .chat-input {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+    .send-button {
+      padding: 8px 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .send-button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-box" id="chatBox">
+      <div class="chat-message bot-message">Welcome to Vyanet Drone Intelligence! I’m here to help with your Drone program questions, self-service tasks, and updates on future offerings. What can I assist you with today?</div>
+    </div>
+    <div class="input-container">
+      <input type="text" class="chat-input" id="userInput" placeholder="Type your message..." onkeypress="if(event.key === 'Enter') sendMessage()">
+      <button class="send-button" onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById('chatBox');
+    const userInput = document.getElementById('userInput');
+
+    function sendMessage() {
+      const message = userInput.value.trim();
+      if (message === '') return;
+
+      // Add user message to chat
+      const userMessage = document.createElement('div');
+      userMessage.className = 'chat-message user-message';
+      userMessage.textContent = message;
+      chatBox.appendChild(userMessage);
+
+      // Clear input
+      userInput.value = '';
+
+      // Scroll to bottom
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      // Send message to OpenAI API
+      fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer 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' // 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
+        },
+        body: JSON.stringify({
+          model: 'gpt-4', // Use the latest model available (e.g., gpt-4o if supported)
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a helpful assistant for Vyanet’s Drone program. Focus on answering questions about drones, troubleshooting, privacy, subscriptions, and future offerings. Do not suggest scheduling meetings, making purchases, or sales-related actions unless explicitly asked. Prioritize education and support. Use the following training content as context:\n\n' +
+                'Section 1: Explore the Drone Functionality\n1.1 Overview of Vyanet Drone Program\nVyanet\'s drone initiative is designed to transform alarm verification and patrol security through aerial surveillance. The patrol drones are intended to reduce false alarms, support emergency responders, and deliver unmatched real-time situational awareness. This initiative builds upon decades of innovation in audio and video verification, extending Vyanet’s proven legacy with mobile, autonomous, and intelligent surveillance tools.\n1.2 Drone Capabilities and Technology Stack\nAutonomous and Manual Operation\nDrones are equipped with both manual piloting and autonomous flight features.\nWhile autonomous flights will be the primary operational mode for scheduled patrols and alarm responses, operators may take manual control for complex or sensitive scenarios.\nCamera Systems\nHigh-definition (HD) imaging cameras are used for daytime surveillance.\nNight vision and thermal imaging capabilities are embedded for low-light and night-time effectiveness.\nCamera footage is delivered in real time to Vyanet\'s monitoring center.\nFuture iterations may include LiDAR for spatial mapping, especially in interior or confined applications.\nStability and Flight Performance\nDrones operate effectively in wind conditions up to 30 mph (tested up to 50 mph, though not optimal).\nEach drone flight lasts 30–40 minutes with a 20-minute recharge period.\nGeofencing technology ensures area-specific route management and prevents entry into opt-out zones or restricted airspaces.\nFlight Altitudes and Safety Standards\nStandard flight operations remain under 400 feet to comply with FAA regulations.\nIn proximity to airports or restricted airspaces, drones operate at reduced altitudes (e.g., 100 feet).\nCommunication and Data Streaming\nDrones transmit video to a base station using long-range Wi-Fi.\nThe base station relays footage to cloud infrastructure and local servers.\nRedundancy includes on-drone recording, cloud storage, and Vyanet\'s physical servers.\n1.3 Operational Protocols\nAlarm Response\nDrones serve as first responders for verified alarm response.\nThe system dispatches drones automatically upon alarm triggers, and a central station operator views real-time footage to confirm or dismiss the threat.\nThis improves response time and reduces false dispatches by verifying incidents before alerting law enforcement.\nPatrol Routes\nRoutine drone patrols are scheduled for HOAs and business districts.\nClients will be able to view drone patrol footage through the client portal.\nIf needed, drone patrols can be manually requested through the portal or app interface.\nLive and On-Demand Access\nLive feeds and recorded clips are available for client review.\nAlerts and notifications (e.g., text, email, app push) inform residents or managers when a drone is active nearby.\nUsers will have access to past patrols and event-triggered footage through a web portal.\n1.4 Use Cases\nPrimary Use Cases\nHOA Surveillance: Ideal for communities with life safety concerns and a tech-forward mindset.\nCommercial Sites: Business parks and industrial areas benefit from off-hours aerial monitoring.\nAlarm Verification: Drones confirm whether a triggered alarm represents a real threat.\nSpecialized Use Cases\nWildfire Monitoring: Especially near national forests, drones help detect early fire activity.\nSchool Emergency Response: In critical incidents, drones provide rapid situational awareness.\nInterior Surveillance (future): Localized, indoor drone applications for highly sensitive zones.\nLaw Enforcement Support: Drones can be made available to police during incidents requiring aerial intel (e.g., shootings, break-ins).\n1.5 AI and Automation Integration\nRole of AI\nAI assists with detecting humans, vehicles, and anomalies in real-time footage.\nAI triages video streams for operator review, filtering out irrelevant frames to reduce manual workload.\nPredictive analysis (planned): AI may learn common patterns and flag unusual activity based on historical data.\nIntegration with Monitoring Center\nDrone feeds integrate into Vyanet’s central monitoring operations.\nWhen AI flags a concern, operators take immediate action, including calling authorities or notifying clients.\n1.6 Deployment and Scalability\nCurrent Fleet\nApproximately 10 drones in the active fleet.\n2 dock-based enterprise drones for continuous, automated operation.\nFuture Deployment Plans\nInitial deployment focused on HOAs within current Vyanet service areas.\nLong-term strategy includes acquiring traditional patrol companies and replacing ground patrols with drones.\nFAA Beyond Visual Line of Sight (BVLOS) waivers required for each deployment site.\n1.7 Technical Maintenance\nRoutine Maintenance\nDrones are maintained by field technicians cross-trained in alarm and camera technology.\nVyanet’s IT team assists with networking and software-level troubleshooting.\nFleet Health\nDrones follow standard lifecycle management and quality assurance standards.\nContinuous QA updates ensure the hardware and firmware remain up-to-date.\nLifecycle of drone systems is approximately five years, aligned with Vyanet’s upgrade strategy.\n1.8 Customer Service and Support\n24/7 Assistance\nClients can contact Vyanet 24/7 for technical or security-related concerns.\nSupport includes live chat, phone access, and emergency on-call technician dispatch.\nTraining and Certification\nVyanet drone pilots are FAA Part 107 certified.\nAdditional training is provided through Vyanet University with simulation, hands-on operation, and ongoing skill assessments.\n1.9 Drone vs. Traditional Patrols\nBenefits Over Ground Patrol\n24/7 availability without human fatigue.\nFaster response (air travel avoids traffic/terrain).\nLower long-term costs and higher surveillance coverage.\nComplementary Operations\nHuman patrols remain available as weather backups.\nDrones augment existing systems rather than fully replace all legacy methods.\n[...remaining training content omitted for brevity...]\n\nAnswer user queries based on this training content, focusing on education, troubleshooting, and support.'
+            },
+            { role: 'user', content: message }
+          ],
+          max_tokens: 500
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        const botResponse = data.choices[0].message.content.trim();
+        const botMessage = document.createElement('div');
+        botMessage.className = 'chat-message bot-message';
+        botMessage.textContent = botResponse;
+        chatBox.appendChild(botMessage);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        const botMessage = document.createElement('div');
+        botMessage.className = 'chat-message bot-message';
+        botMessage.textContent = 'Sorry, I encountered an error. Please try again later.';
+        chatBox.appendChild(botMessage);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      });
+    }
+  </script>
+</body>
+</html>
